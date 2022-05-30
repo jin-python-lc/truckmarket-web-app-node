@@ -1,0 +1,366 @@
+<%- include('partials/header') %>
+
+
+    <body>
+        <h1 class="musiclist">"<%= query %>"の検索結果 <%= length %>trucks</h1>
+        <div id="musiclist" class="musiclist" style="display: flex;flex-wrap: wrap;"></div>
+        <a id="param" style="display: none;"><%= param %></a><br>
+        <div class="footer-info" style="border-top: 0.5px solid #30363d; height: 50px;">
+            <div>
+                <div>
+                    <a href="#">about</a>
+                    <a> | </a>
+                    <a href="#">contact</a>
+                    <a> | </a>
+                    <a href="#">info</a>
+                </div>
+            </div>
+        </div>
+    </body>
+
+
+
+    </html>
+
+    <script>
+
+        var s3_client = function () {
+            AWS.config.region = "ap-northeast-1";
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+            AWS.config.credentials.get(function (err) {
+                if (!err) {
+                }
+            });
+            return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+        };
+
+        var json1 = $("#param").text()
+        var json = JSON.parse(json1)
+        console.log(json)
+                        for (let i = 0; i < json.length; i++) {
+                            let params = { Bucket: 'bucket-jin-test', Key: json[i].m4a };
+                            let params_i = { Bucket: 'bucket-jin-test', Key: json[i].image };
+                            s3_client().getSignedUrl('getObject', params_i, function (err, url_i) {
+                                //console.log(json[i].image + ':::::' + url)
+                                s3_client().getSignedUrl('getObject', params, function (err, url) {
+                                    let title = `<div class="truckcontainer" style="margin-bottom:5%;height: 250px;"><div class="truckpic"><a href="javascript:void(0)" class="imgholder" id="imgholder"><img src="${url_i}" height="150" width="150" alt=""></img><span id="playbtn" class="fas fa-play"></span><span id="playcount" class="playcount">❤︎ ${json[i].liked} <span class="fas fa-play display"></span> ${json[i].played}</span><span id="likebtn-none" class="likebtn-none"><audio id="m4a${i}"><source src="${url}" type="audio/x-m4a"></audio></a></div><div class="truckdescription"><a id="likebtn" class="likebtn" ids="${json[i].truckid}" style="">❤︎</a><br><a class="oneline black" id="title${i}">${json[i].title}</a><p class="oneline gray" style="margin-top: 0%;"><a class="oneline gray" href="artists?name=${json[i].artist}">${json[i].artist}</a></p></div></div>`;
+                                    document.getElementById('musiclist').insertAdjacentHTML('beforeend', title);
+                                });
+                            });
+                        }      
+                    
+            
+            
+            /* $(document).on('click', '#imgholder', function(){
+                var m4aid2 = $(this).find('audio').attr('id');
+                var m4a = document.querySelector(`#${m4aid2}`)
+                var other = document.querySelectorAll('audio')
+                for (let i=0; i < other.length; i++){
+                    let stop = other[i]
+                    if(stop != m4a){
+                        stop.pause();
+                        stop.currentTime = 0;
+                    } else {
+                    }
+                }
+                var playbtnarray = document.querySelectorAll('#playbtn')
+                for (let i=0; i < playbtnarray.length; i++){
+                    let btn = playbtnarray[i]
+                    btn.classList.remove('fa-pause')
+                    btn.classList.add('fa-play')
+                }
+                var m4aid = $(this).find('audio').attr('id');
+                var audio = document.getElementById(`${m4aid}`);
+                if (!audio.paused) {
+                    $(this).find('#playbtn').removeClass('fa-pause')
+                    $(this).find('#playbtn').addClass('fa-play')
+                    audio.pause();
+                    audio.currentTime = 0;
+                } else if(audio.paused) {
+                    $(this).find('#playbtn').removeClass('fa-play')
+                    $(this).find('#playbtn').addClass('fa-pause')
+                    audio.play();
+                    var title = $(this).parent().next().children('.black').text()
+                    var artist = $(this).parent().next().children('.gray').text()
+                    var data = {title: title, artist: artist}
+                    var param  = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify(data)
+                        };
+                        fetch("http://localhost:3000/playcounter", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                        });
+                }
+            }); */
+            const startTimer = function(audio, slider_progress){
+                playtimer = setInterval(function(){
+                    playback_position.textContent = convertTime(audio.currentTime)
+                    slider_progress.value = Math.floor( (audio.currentTime / audio.duration) * audio.duration);
+                    console.log(audio)
+                }, 500);
+            };
+            const stopTimer = function(){
+                if(typeof playtimer === "number"){
+                    clearInterval(playtimer);
+                }
+            };
+            const convertTime = function(time_position) {
+                time_position = Math.floor(time_position);
+                var res = null;
+
+                if( 60 <= time_position ) {
+                res = Math.floor(time_position / 60);
+                res += ":" + Math.floor(time_position % 60).toString().padStart( 2, '0');
+                } else {
+                res = "0:" + Math.floor(time_position % 60).toString().padStart( 2, '0');
+                }
+                return res;
+            };
+
+            var footerbtn = function (audio, that) {
+                $('#progress').off()
+                $('#footerplay').off()
+                $('#footerplay').removeClass('fa-play')
+                $('#footerplay').addClass('fa-pause')
+                $('#footerplay').on('click', function(){
+                    $('#progress').off()
+                    const playback_position = document.getElementById("playback_position");
+                    const end_position = document.getElementById("end_position");
+                    const slider_progress = document.getElementById("progress");
+                    if (!audio.paused) {
+                        $(this).removeClass('fa-pause')
+                        $(this).addClass('fa-play')
+                        $(that).find('#playbtn').removeClass('fa-pause')
+                        $(that).find('#playbtn').addClass('fa-play')
+                        audio.pause();
+                        $('#progress').off()
+                        //audio.currentTime = 0;
+                        stopTimer()
+                    } else if(audio.paused) {
+                        $(this).removeClass('fa-play')
+                        $(this).addClass('fa-pause')
+                        $(that).find('#playbtn').removeClass('fa-play')
+                        $(that).find('#playbtn').addClass('fa-pause')
+                        audio.currentTime = slider_progress.value
+                        audio.play();
+                        end_position.textContent = convertTime(audio.duration)
+                        slider_progress.max = convertTime(audio.duration);
+                        startTimer(audio, slider_progress);
+                        $('#progress').on('input', function(){
+                            stopTimer();
+                        })
+                        $('#progress').on('change', function(){
+                            startTimer(audio, slider_progress);
+                            audio.currentTime = slider_progress.value;
+                        }) 
+                    }
+                })
+            }
+
+            $(document).on('click', '#imgholder', function(){
+                $('#progress').off()
+                $('#footerplay').off()
+                const playback_position = document.getElementById("playback_position");
+                const end_position = document.getElementById("end_position");
+                const slider_progress = document.getElementById("progress");
+
+                
+                var m4aid2 = $(this).find('audio').attr('id');
+                var m4a = document.querySelector(`#${m4aid2}`)
+                var other = document.querySelectorAll('audio')
+                for (let i=0; i < other.length; i++){
+                    let stop = other[i]
+                    if(stop != m4a){
+                        stop.pause();
+                        stop.currentTime = 0;
+                    } else {
+                    }
+                }
+                stopTimer()
+                var playbtnarray = document.querySelectorAll('#playbtn')
+                for (let i=0; i < playbtnarray.length; i++){
+                    let btn = playbtnarray[i]
+                    btn.classList.remove('fa-pause')
+                    btn.classList.add('fa-play')
+                }
+                var m4aid = $(this).find('audio').attr('id');
+                var audio = document.getElementById(`${m4aid}`);
+                //footerbtn(audio, this)
+                if (!audio.paused) {
+                    $('#footerplay').removeClass('fa-pause')
+                    $('#footerplay').addClass('fa-play')
+                    $(this).find('#playbtn').removeClass('fa-pause')
+                    $(this).find('#playbtn').addClass('fa-play')
+                    audio.pause();
+                    //audio.currentTime = 0;
+                    stopTimer()
+                } else if(audio.paused) {
+                    $('#footerplay').removeClass('fa-play')
+                    $('#footerplay').addClass('fa-pause')
+                    $(this).find('#playbtn').removeClass('fa-play')
+                    $(this).find('#playbtn').addClass('fa-pause')
+                    audio.play();
+                    footerbtn(audio, this)
+                    end_position.textContent = convertTime(audio.duration)
+                    slider_progress.max = audio.duration;
+                    startTimer(audio, slider_progress);
+                    // プログレスバーmoving
+                    //slider_progress.addEventListener("input", function moving(e){
+                    $('#progress').on('input', function(){
+                        stopTimer();
+                    })
+                    $('#progress').on('change', function(){
+                        startTimer(audio, slider_progress);
+                        audio.currentTime = slider_progress.value;
+                    })
+
+                    var title = $(this).parent().next().children('.black').text()
+                    var artist = $(this).parent().next().children('.gray').text()
+                    var data = {title: title, artist: artist}
+                    var param  = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify(data)
+                        };
+                        fetch("http://localhost:3000/playcounter", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                        });
+                }
+            });
+
+            $(document).on('click', '#likebtn', function(){
+                var title = $(this).parent().find('.black').text()
+                var artist = $(this).parent().find('.gray').find('a').text()
+                var data = {title: title, artist: artist}
+                var param  = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify(data)
+                        };
+                if($(this).css('color') == 'rgb(255, 255, 255)'){
+                    console.log('clicked')
+                    console.log($(this).css('color'))
+                    $(this).css('color','red')
+                        fetch("http://localhost:3000/likelist", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                            console.log(json)
+                            addlike()
+                        });
+                } else {
+                    console.log('like済み')
+                    $(this).css('color','#FFF')
+                        fetch("http://localhost:3000/deletelike", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                            console.log(json)
+                        });
+                }
+            });
+
+
+
+            fetch("http://localhost:3000/likedarray")
+                .then((res) => {
+                    return (res.json())
+                })
+                .then((json) => {
+                    console.log(json)
+                    function a () {
+                        for (let i = 0; i<json.length; i++){
+                            let ids = json[i]
+                            let btn = $(`a[ ids = "${ids}" ]`)
+                            console.log(btn)
+                            btn.css('color','red')
+                        }
+                    }
+                    window.setTimeout( a, 1000 );
+                });
+
+        /* var URI = "";
+      
+        $(function () {
+            var s3_client = function () {
+                AWS.config.region = "ap-northeast-1";
+                AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+                AWS.config.credentials.get(function (err) {
+                    if (!err) {
+                        //console.log("Cognito Identify Id: " + AWS.config.credentials.identityId);
+                    }
+                });
+                return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+            };
+      
+            var username = 'jin'
+      
+            $("#apply-upload").click(function () {
+                var file = $("#upload-file").prop("files")[0];
+                var timestamp = new Date().getTime();
+                var filename = (username + '_' + file.name)
+                //console.log(filename)
+                var dotindex = (filename).lastIndexOf('.');
+                var filetype = filename.slice(dotindex + 1); */
+          //console.log(filetype)
+        /*  //　アップロード
+         if (filetype == 'm4a') {
+             s3_client().putObject({Key: filename, ContentType: file.type, Body: file, ACL: "public-read"},
+             function(err, data){
+              // if failed, alert
+                 if(data !== null){
+                 alert("アップロード成功!");
+                 } else {
+                 alert("アップロード失敗.");
+             }
+         })
+         }　else {
+             alert('AAC(.m4a)形式でアップロードしてください。')
+         };
+         //ゲット
+         s3_client().getObject({Key: filename},
+             function(err, data){
+              // if failed, alert
+                 if(data !== null){
+                 //console.log(data);
+                 } else {
+                 //console.log(err);
+             }
+         }) */
+          // 期限付きURL取得、再生押したら再生
+        /* var params = { Bucket: 'bucket-jin-test', Key: `${filename}` };
+        s3_client().getSignedUrl('getObject', params, function (err, url) {
+            //console.log("The URL is", url);
+            //audio file
+            var URI = url;
+            //play button
+            const play_btn = document.querySelector('#play-btn');
+            //play event
+            play_btn.addEventListener('click', play);
+            function play() {
+                var sound = new Audio(url);
+                sound.play();
+            }
+        });
+    });
+}); */
+
+
+    </script>
+
+    <%- include('partials/footer') %>

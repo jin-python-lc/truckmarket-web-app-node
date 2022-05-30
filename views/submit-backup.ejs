@@ -1,0 +1,148 @@
+<%- include('partials/header') %>
+
+
+<body>
+    <div class="displaynone">
+        <a id="username"><%= username %></a>
+    </div>
+    <input type="file" name="upload" id="upload-file">
+    <a href="javascript:void(0)" id="apply-upload">アップロード</a>
+
+    <button class="btns" id="play-btn">play</button>
+
+    <div>
+    </div>
+</body>
+
+
+
+</html>
+
+<script>
+
+
+var URI = "";
+
+$(function () {
+    var s3_client = function () {
+        AWS.config.region = "ap-northeast-1";
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+        AWS.config.credentials.get(function (err) {
+            if (!err) {
+              //console.log("Cognito Identify Id: " + AWS.config.credentials.identityId);
+            }
+        });
+        return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+    };
+
+    //var username = 'jin'
+    var username = $("#username").text();
+
+    $("#apply-upload").click(function () {
+        var file = $("#upload-file").prop("files")[0];
+        var timestamp = new Date().getTime();
+        var filename = (username + '_' + file.name)
+        //console.log(filename)
+        var dotindex = (filename).lastIndexOf('.');
+        var filetype = filename.slice(dotindex + 1);
+        //console.log(filetype)
+        //　アップロード
+        if (filetype == 'm4a') {
+            s3_client().putObject({Key: filename, ContentType: file.type, Body: file, ACL: "public-read"},
+            function(err, data){
+                // if failed, alert
+                if(data !== null){
+                   alert("アップロード成功!");
+                } else {
+                   alert("アップロード失敗.");
+                }
+            })
+        }　else {
+            alert('AAC(.m4a)形式でアップロードしてください。')
+        }; 
+        // 期限付きURL取得、再生押したら再生
+        var params = { Bucket: 'bucket-jin-test', Key: `${filename}` };
+        s3_client().getSignedUrl('getObject', params, function (err, url) {
+            //console.log("The URL is", url);
+            //audio file
+            var URI = url;
+            //play button
+            const play_btn = document.querySelector('#play-btn');
+            //play event
+            play_btn.addEventListener('click', play);
+            function play() {
+                var sound = new Audio(url);
+                sound.play();
+            } 
+        });
+
+        /* var params = { Bucket: 'bucket-jin-test', Key: `${filename}` };
+                s3_client().getSignedUrl('getObject', params, function (err, url) {
+                    var URI = url;
+                    const play_btn = document.querySelector('#play-btn');
+                    play_btn.addEventListener('click', play);
+                    function play() {
+                        var sound = new Audio(url);
+                        sound.play();
+                    }
+                }); */
+        
+        /* function check() {
+            var file = $("#uploadfile").prop("files")[0];
+            var dotindex = (filename).lastIndexOf('.');
+            var filetype = file.name.slice(dotindex + 1);
+            if (filetype == 'm4a') {
+                alert('登録しました。')
+                const formData = new FormData();
+                formData.append("uploadfile", uploadfile.files[0]);
+
+                const param = {
+                    method: "POST",
+                    body: formData
+                }
+                fetch("upload", param)
+                    .then((res) => {
+                        return (res.json());
+                    })
+                    .then((json) => {
+                        // 通信が成功した際の処理
+                    })
+                    .catch((error) => {
+                        // エラー処理
+                    });
+            } else {
+                alert('.m4a形式でアップロードしてください。')
+            }
+        }; */
+
+
+        /* document.querySelector("#upload").addEventListener("submit", (e) => {
+            alert('登録しました。')
+            const formData = new FormData();
+            formData.append("uploadfile", uploadfile.files[0]);
+
+            const param = {
+                method: "POST",
+                body: formData
+            }
+            fetch("upload", param)
+                .then((res) => {
+                    return (res.json());
+                })
+                .then((json) => {
+                    // 通信が成功した際の処理
+                    alert('登録しました。')
+                })
+                .catch((error) => {
+                    // エラー処理
+                });
+            /* } */
+        /* }); */
+    });
+});
+
+
+</script>
+
+
+<%- include('partials/footer') %>

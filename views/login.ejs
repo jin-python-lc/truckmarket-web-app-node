@@ -1,0 +1,40 @@
+<%- include('partials/header') %>
+
+    <body>
+        <!-- <p style="text-align: center; color: black;"><%= info %></p>
+        <h4 style="margin-top: 2%;">ログイン</h4>
+        <form name="form1" method="POST" class="fetchForm" action="/login">
+
+            <input type="text" id="email" name="email" placeholder="メールアドレス" class="form-control"
+                style="margin-bottom: 0.5%;" required />
+
+            <input type="text" id="password" name="password" placeholder="パスワード" class="form-control"
+                style="margin-bottom: 0.5%;" required />
+
+            <input value="ログイン" type="submit" class="btn btn-lg "
+                style="background-color: rgb(255, 123, 0); margin-top: 0.5%; margin-bottom: 3%;">
+        </form>
+        <a class="btn" style="padding-top:1%; padding-bottom: 1%; border-style:ridge; border-color: lightslategray; border-radius: 5%; border-width: 0.1%; margin-right: 1%;"  href="/register">新規登録</a>
+ -->
+        <p style="text-align: center; color: black;">
+            <%= info %>
+        </p>
+        <h4 style="margin-top: 2%;">creatorログイン</h4>
+        <form name="form1" method="POST" class="fetchForm" action="/mypagelogin">
+
+            <input type="text" id="email" name="email" placeholder="メールアドレス" class="form-control"
+                style="margin-bottom: 0.5%;" required />
+
+            <input type="password" id="password" name="password" placeholder="パスワード" class="form-control"
+                style="margin-bottom: 0.5%;" required />
+
+            <input value="ログイン" type="submit" class="btn btn-lg "
+                style="background-color: rgb(255, 123, 0); margin-top: 0.5%; margin-bottom: 3%;">
+        </form>
+        <a class="btn"
+            style="padding-top:1%; padding-bottom: 1%; border-style:ridge; border-color: lightslategray; border-radius: 5%; border-width: 0.1%; margin-right: 1%;"
+            href="/creatorregister">新規登録</a>
+
+    </body>
+
+    <%- include('partials/footer') %>

@@ -1,0 +1,459 @@
+<%- include('partials/header') %>
+
+    <body>
+        <div class="bodycontainer">
+            <div class="maincontent">
+                <div class="alignbox">
+                    <h2>HIPHOP</h2>
+                    <button class="slick-prev-j" id="slick-prev-1">⬅︎</button>
+                    <button class="slick-next-j" id="slick-next-1">➡︎</button>
+                    <div class="flexcontainer" style="display: flex; /* flex-wrap: wrap; */" id="musiclist1">
+                        
+
+                    </div>
+                </div>
+                <div class="alignbox">
+                    <h2>JAZZ</h2>
+                    <button class="slick-prev-j" id="slick-prev-2">⬅︎</button>
+                    <button class="slick-next-j" id="slick-next-2">➡︎</button>
+                    <div class="flexcontainer" style="display: flex; /* flex-wrap: wrap; */" id="musiclist2">
+                        
+
+                    </div>
+                </div>
+                <div class="alignbox">
+                    <h2>MELLOW</h2>
+                    <button class="slick-prev-j" id="slick-prev-3">⬅︎</button>
+                    <button class="slick-next-j" id="slick-next-3">➡︎</button>
+                    <div class="flexcontainer" style="display: flex; /* flex-wrap: wrap; */" id="musiclist3">
+                        
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="sidecontent">
+                <div class="alignbox-side">
+                    <div class="alignbox-side-content">
+                        <a style="color: rgb(201, 209, 217);">Follow</a>
+                    </div>
+                    <div id="followlist">
+                        
+                    </div>
+                    <div class="alignbox-side-content">
+                        <a style="color: rgb(201, 209, 217);">Like</a>
+                    </div>
+                    <div id="likedlist">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-info" style="border-top: 0.5px solid #30363d; height: 50px; margin-top: 10vw;">
+            <div>
+                <div>
+                    <a href="#">about</a>
+                    <a> | </a>
+                    <a href="#">contact</a>
+                    <a> | </a>
+                    <a href="#">info</a>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    </body>
+
+    
+
+
+    </html>
+
+    <script>
+
+        var s3_client = function () {
+            AWS.config.region = "ap-northeast-1";
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+            AWS.config.credentials.get(function (err) {
+                if (!err) {
+                }
+            });
+            return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+        };
+
+        fetch("http://localhost:3000/trucklistall")
+            .then((res) => {
+                return (res.json());
+            })
+            .then((json) => {
+                console.log(json)
+                console.log(json.length)
+                //bは冗長繰り返し,m4aid1でも変数使用
+                for (let b = 0; b<2; b++){
+                    for (let j = 0; j < json.length; j++) {
+                        if (json[j].category == 'HIPHOP') {
+                                    let title = `<div class="truckcontainer"><div class="truckpic"><a href="javascript:void(0)" class="imgholder" id="imgholder"><img src="https://d29imcvtfvhwws.cloudfront.net/${json[j].image}" height="150" width="150" alt=""></img><span id="playbtn" class="fas fa-play"></span><span id="playcount" class="playcount">❤︎ ${json[j].liked} <span class="fas fa-play display"></span> ${json[j].played}</span><span id="likebtn-none" class="likebtn-none"><audio id="m4a${j}${b}"><source src="https://d29imcvtfvhwws.cloudfront.net/${json[j].m4a}" type="audio/x-m4a"></audio></a></div><div class="truckdescription"><a id="likebtn" class="likebtn" ids="${json[j].truckid}" style="">❤︎</a><br><a class="oneline black" id="title${j}">${json[j].title}</a><p class="oneline gray" style="margin-top: 0%;"><a class="oneline gray" href="artists?name=${json[j].artist}">${json[j].artist}</a></p></div></div>`;
+                                    document.getElementById('musiclist1').insertAdjacentHTML('beforeend', title);
+                        } else if (json[j].category == 'JAZZ'){
+                                    let title = `<div class="truckcontainer"><div class="truckpic"><a href="javascript:void(0)" class="imgholder" id="imgholder"><img src="https://d29imcvtfvhwws.cloudfront.net/${json[j].image}" height="150" width="150" alt=""></img><span id="playbtn" class="fas fa-play"></span><span id="playcount" class="playcount">❤︎ ${json[j].liked} <span class="fas fa-play display"></span> ${json[j].played}</span><span id="likebtn-none" class="likebtn-none"><audio id="m4a${j}${b}"><source src="https://d29imcvtfvhwws.cloudfront.net/${json[j].m4a}" type="audio/x-m4a"></audio></a></div><div class="truckdescription"><a id="likebtn" class="likebtn" ids="${json[j].truckid}" style="">❤︎</a><br><a class="oneline black" id="title${j}">${json[j].title}</a><p class="oneline gray" style="margin-top: 0%;"><a class="oneline gray" href="artists?name=${json[j].artist}">${json[j].artist}</a></p></div></div>`;
+                                    document.getElementById('musiclist2').insertAdjacentHTML('beforeend', title);
+                        } else if (json[j].category == 'RAP'){
+                                    let title = `<div class="truckcontainer"><div class="truckpic"><a href="javascript:void(0)" class="imgholder" id="imgholder"><img src="https://d29imcvtfvhwws.cloudfront.net/${json[j].image}" height="150" width="150" alt=""></img><span id="playbtn" class="fas fa-play"></span><span id="playcount" class="playcount">❤︎ ${json[j].liked} <span class="fas fa-play display"></span> ${json[j].played}</span><span id="likebtn-none" class="likebtn-none"><audio id="m4a${j}${b}"><source src="https://d29imcvtfvhwws.cloudfront.net/${json[j].m4a}" type="audio/x-m4a"></audio></a></div><div class="truckdescription"><a id="likebtn" class="likebtn" ids="${json[j].truckid}" style="">❤︎</a><br><a class="oneline black" id="title${j}">${json[j].title}</a><p class="oneline gray" style="margin-top: 0%;"><a class="oneline gray" href="artists?name=${json[j].artist}">${json[j].artist}</a></p></div></div>`;
+                                    document.getElementById('musiclist3').insertAdjacentHTML('beforeend', title);
+                        }
+                            
+                    }
+                };
+                return json.length
+            })
+            .then((num) =>{
+                fetch("http://localhost:3000/likedarray")
+                .then((res) => {
+                    return (res.json())
+                })
+                .then((json) => {
+                    console.log(json)
+                    function a () {
+                        for (let i = 0; i<json.length; i++){
+                            let ids = json[i]
+                            let btn = $(`a[ ids = "${ids}" ]`)
+                            console.log(btn)
+                            btn.css('color','red')
+                        }
+                    }
+                    window.setTimeout( a, 1000 );
+                });
+            });
+
+            
+            /* fetch("http://localhost:3000/likedarray")
+            .then((res) => {
+                return (res.json());
+            })
+            .then((json) => {
+                console.log(json)
+                console.log(json.length)
+                for (let i = 0; i < json.length; i++){
+                    
+                }
+            }); */
+    
+            function like(){
+                fetch("http://localhost:3000/likelist")
+                .then((res) => {
+                    return (res.json());
+                })
+                .then((json) => {
+                    console.log(json)
+                    for (let i = 0; i<3; i++){
+                                let title = `<div class="truckcontainer-mini"><div class="truckpic"><a href="javascript:void(0)" class="imgholder-mini" id="imgholder"><img src="https://d29imcvtfvhwws.cloudfront.net/${json[i].image}" height="150" width="150" alt=""></img><span id="playbtn" class="fas fa-play playbtn-mini"></span><audio id="sidem4a${i}"><source src="https://d29imcvtfvhwws.cloudfront.net/${json[i].m4a}" type="audio/x-m4a"></audio></a></div><div class="truckdescription-mini"><p class="oneline-mini gray-mini" style="margin-top: 0%;"><a class="gray-mini" href="artists?name=${json[i].artist}">${json[i].artist}</a></p><a class="oneline-mini black-mini" id="sidetitle${i}">${json[i].title}</a><br><a class="oneline-mini gray-mini" id="played">❤︎ ${json[i].liked} <span class="fas fa-play display"></span>${json[i].played}</a></div></div>`
+                                document.getElementById('likedlist').insertAdjacentHTML('beforeend', title);
+                    }
+                });
+            }
+            like();
+
+            function addlike(){
+                fetch("http://localhost:3000/addlike")
+                .then((res) => {
+                    return (res.json());
+                })
+                .then((json) => {
+                    console.log(json)
+                    let params = { Bucket: 'bucket-jin-test', Key: json[0].m4a };
+                    let params_i = { Bucket: 'bucket-jin-test', Key: json[0].image };
+                    s3_client().getSignedUrl('getObject', params_i, function (err, url_i) {
+                        s3_client().getSignedUrl('getObject', params, function (err, url) {
+                            let title = `<div class="truckcontainer-mini"><div class="truckpic"><a href="javascript:void(0)" class="imgholder-mini" id="imgholder"><img src="${url_i}" height="150" width="150" alt=""></img><span id="playbtn" class="fas fa-play playbtn-mini"></span><audio id="sidem4a${0}"><source src="${url}" type="audio/x-m4a"></audio></a></div><div class="truckdescription-mini"><p class="oneline-mini gray-mini" style="margin-top: 0%;"><a class="gray-mini" href="artists?name=${json[0].artist}">${json[0].artist}</a></p><a class="oneline-mini black-mini" id="sidetitle${0}">${json[0].title}</a><br><a class="oneline-mini gray-mini" id="played">❤︎ ${json[0].liked} <span class="fas fa-play display"></span>${json[0].played}</a></div></div>`
+                            document.getElementById('likedlist').insertAdjacentHTML('beforeend', title);
+                        })
+                    })        
+                });
+            }
+
+            
+
+            const startTimer = function(audio, slider_progress){
+                playtimer = setInterval(function(){
+                    playback_position.textContent = convertTime(audio.currentTime)
+                    slider_progress.value = Math.floor( (audio.currentTime / audio.duration) * audio.duration);
+                    console.log(audio)
+                }, 500);
+            };
+            const stopTimer = function(){
+                if(typeof playtimer === "number"){
+                    clearInterval(playtimer);
+                }
+            };
+            const convertTime = function(time_position) {
+                time_position = Math.floor(time_position);
+                var res = null;
+
+                if( 60 <= time_position ) {
+                res = Math.floor(time_position / 60);
+                res += ":" + Math.floor(time_position % 60).toString().padStart( 2, '0');
+                } else {
+                res = "0:" + Math.floor(time_position % 60).toString().padStart( 2, '0');
+                }
+                return res;
+            };
+
+            var footerbtn = function (audio, that) {
+                $('#progress').off()
+                $('#footerplay').off()
+                $('#footerplay').removeClass('fa-play')
+                $('#footerplay').addClass('fa-pause')
+                $('#footerplay').on('click', function(){
+                    $('#progress').off()
+                    const playback_position = document.getElementById("playback_position");
+                    const end_position = document.getElementById("end_position");
+                    const slider_progress = document.getElementById("progress");
+                    if (!audio.paused) {
+                        $(this).removeClass('fa-pause')
+                        $(this).addClass('fa-play')
+                        $(that).find('#playbtn').removeClass('fa-pause')
+                        $(that).find('#playbtn').addClass('fa-play')
+                        audio.pause();
+                        $('#progress').off()
+                        //audio.currentTime = 0;
+                        stopTimer()
+                    } else if(audio.paused) {
+                        $(this).removeClass('fa-play')
+                        $(this).addClass('fa-pause')
+                        $(that).find('#playbtn').removeClass('fa-play')
+                        $(that).find('#playbtn').addClass('fa-pause')
+                        audio.currentTime = slider_progress.value
+                        audio.play();
+                        end_position.textContent = convertTime(audio.duration)
+                        slider_progress.max = convertTime(audio.duration);
+                        startTimer(audio, slider_progress);
+                        $('#progress').on('input', function(){
+                            stopTimer();
+                        })
+                        $('#progress').on('change', function(){
+                            startTimer(audio, slider_progress);
+                            audio.currentTime = slider_progress.value;
+                        }) 
+                    }
+                })
+            }
+
+            $(document).on('click', '#imgholder', function(){
+                $('#progress').off()
+                $('#footerplay').off()
+                const playback_position = document.getElementById("playback_position");
+                const end_position = document.getElementById("end_position");
+                const slider_progress = document.getElementById("progress");
+
+                
+                var m4aid2 = $(this).find('audio').attr('id');
+                var m4a = document.querySelector(`#${m4aid2}`)
+                var other = document.querySelectorAll('audio')
+                for (let i=0; i < other.length; i++){
+                    let stop = other[i]
+                    if(stop != m4a){
+                        stop.pause();
+                        stop.currentTime = 0;
+                    } else {
+                    }
+                }
+                stopTimer()
+                var playbtnarray = document.querySelectorAll('#playbtn')
+                for (let i=0; i < playbtnarray.length; i++){
+                    let btn = playbtnarray[i]
+                    btn.classList.remove('fa-pause')
+                    btn.classList.add('fa-play')
+                }
+                var m4aid = $(this).find('audio').attr('id');
+                var audio = document.getElementById(`${m4aid}`);
+                //footerbtn(audio, this)
+                if (!audio.paused) {
+                    $('#footerplay').removeClass('fa-pause')
+                    $('#footerplay').addClass('fa-play')
+                    $(this).find('#playbtn').removeClass('fa-pause')
+                    $(this).find('#playbtn').addClass('fa-play')
+                    audio.pause();
+                    //audio.currentTime = 0;
+                    stopTimer()
+                } else if(audio.paused) {
+                    $('#footerplay').removeClass('fa-play')
+                    $('#footerplay').addClass('fa-pause')
+                    $(this).find('#playbtn').removeClass('fa-play')
+                    $(this).find('#playbtn').addClass('fa-pause')
+                    audio.play();
+                    footerbtn(audio, this)
+                    end_position.textContent = convertTime(audio.duration)
+                    slider_progress.max = audio.duration;
+                    startTimer(audio, slider_progress);
+                    // プログレスバーmoving
+                    //slider_progress.addEventListener("input", function moving(e){
+                    $('#progress').on('input', function(){
+                        stopTimer();
+                    })
+                    $('#progress').on('change', function(){
+                        startTimer(audio, slider_progress);
+                        audio.currentTime = slider_progress.value;
+                    })
+
+                    var title = $(this).parent().next().children('.black').text()
+                    var artist = $(this).parent().next().children('.gray').text()
+                    var data = {title: title, artist: artist}
+                    var param  = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify(data)
+                        };
+                        fetch("http://localhost:3000/playcounter", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                        });
+                }
+            });
+
+            
+            $(document).on('click', '#likebtn', function(){
+                var title = $(this).parent().find('.black').text()
+                var artist = $(this).parent().find('.gray').find('a').text()
+                var data = {title: title, artist: artist}
+                var param  = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify(data)
+                        };
+                if($(this).css('color') == 'rgb(255, 255, 255)'){
+                    console.log('clicked')
+                    console.log($(this).css('color'))
+                    $(this).css('color','red')
+                        fetch("http://localhost:3000/likelist", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                            console.log(json)
+                            addlike()
+                        });
+                } else {
+                    console.log('like済み')
+                    $(this).css('color','#FFF')
+                        fetch("http://localhost:3000/deletelike", param)
+                        .then((res)=>{
+                            return( res.json() );
+                        })
+                        .then((json)=>{
+                            console.log(json)
+                        });
+                }
+            });
+
+            $(document).ready(function($){
+                function start_slick(){
+                    $('#musiclist1').slick({
+                        autoplaySpeed: 100,
+                        dots: true,
+                        slidesToShow: 5,
+                        slidesToScroll: 2,
+                        prevArrow: $('#slick-prev-1'),
+                        nextArrow: $('#slick-next-1'),
+                        variableWidth: true,
+                        //asNavFor: $('#musiclist1')
+                    });
+                    $('#musiclist2').slick({
+                        autoplaySpeed: 100,
+                        dots: true,
+                        //slidesToShow: 5,
+                        slidesToScroll: 2,
+                        prevArrow: $('#slick-prev-2'),
+                        nextArrow: $('#slick-next-2'),
+                        variableWidth: true,
+                        //asNavFor: $('#musiclist2')
+                    });
+                    $('#musiclist3').slick({
+                        autoplaySpeed: 100,
+                        dots: true,
+                        //slidesToShow: 5,
+                        slidesToScroll: 2,
+                        prevArrow: $('#slick-prev-3'),
+                        nextArrow: $('#slick-next-3'),
+                        variableWidth: true,
+                        //asNavFor: $('#musiclist2')
+                    });
+                }
+                window.setTimeout( start_slick, 3000 );
+            });
+
+
+        /* var URI = "";
+      
+        $(function () {
+            var s3_client = function () {
+                AWS.config.region = "ap-northeast-1";
+                AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+                AWS.config.credentials.get(function (err) {
+                    if (!err) {
+                        //console.log("Cognito Identify Id: " + AWS.config.credentials.identityId);
+                    }
+                });
+                return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+            };
+      
+            var username = 'jin'
+      
+            $("#apply-upload").click(function () {
+                var file = $("#upload-file").prop("files")[0];
+                var timestamp = new Date().getTime();
+                var filename = (username + '_' + file.name)
+                //console.log(filename)
+                var dotindex = (filename).lastIndexOf('.');
+                var filetype = filename.slice(dotindex + 1); */
+          //console.log(filetype)
+        /*  //　アップロード
+         if (filetype == 'm4a') {
+             s3_client().putObject({Key: filename, ContentType: file.type, Body: file, ACL: "public-read"},
+             function(err, data){
+              // if failed, alert
+                 if(data !== null){
+                 alert("アップロード成功!");
+                 } else {
+                 alert("アップロード失敗.");
+             }
+         })
+         }　else {
+             alert('AAC(.m4a)形式でアップロードしてください。')
+         };
+         //ゲット
+         s3_client().getObject({Key: filename},
+             function(err, data){
+              // if failed, alert
+                 if(data !== null){
+                 //console.log(data);
+                 } else {
+                 //console.log(err);
+             }
+         }) */
+          // 期限付きURL取得、再生押したら再生
+        /* var params = { Bucket: 'bucket-jin-test', Key: `${filename}` };
+        s3_client().getSignedUrl('getObject', params, function (err, url) {
+            //console.log("The URL is", url);
+            //audio file
+            var URI = url;
+            //play button
+            const play_btn = document.querySelector('#play-btn');
+            //play event
+            play_btn.addEventListener('click', play);
+            function play() {
+                var sound = new Audio(url);
+                sound.play();
+            }
+        });
+    });
+}); */
+
+
+    </script>
+
+    <%- include('partials/footer') %>

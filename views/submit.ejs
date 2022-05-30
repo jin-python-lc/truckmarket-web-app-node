@@ -1,0 +1,186 @@
+<%- include('partials/header') %>
+
+
+    <body>
+        <div class="displaynone">
+            <a id="username">
+                <%= username %>
+            </a>
+            <a id="trucklist">
+                <%= trucklist %>
+            </a>
+        </div>
+
+        <form id="upload" method="POST" enctype="multipart/form-data" action="upload" onSubmit="return check()">
+
+            <input type="text" name="title" id="uploadtitle" placeholder="タイトル">
+            <p>ジャンル：<select name="category">
+                <option value="HIPHOP">HIPHOP</option>
+                <option value="JAZZ">JAZZ</option>
+                <option value="RAP">RAP</option>
+                </select>
+            </p>
+            <input type="file" name="upload" id="uploadfilejpeg" accept="image/*">
+
+            <input type="file" name="upload" id="uploadfile" accept="audio/x-m4a">
+
+            <input value="UPLOAD" id="uploadbtn" type="submit" class="btn btn-lg " onSubmit="return check()"
+                style="background-color: rgb(255, 123, 0); margin-top: 0.5%; margin-bottom: 3%;">
+        </form>
+
+        <canvas id="canvas" width="100" height="100" style="display: none;"></canvas>
+
+        <div id="musiclist">
+
+        </div>
+    </body>
+
+
+
+    </html>
+
+    <script>
+
+        fetch("http://localhost:3000/trucklist")
+            .then((res) => {
+                return (res.json());
+            })
+            .then((json) => {
+                console.log(json)
+                console.log(json.length)
+                for (let i = 0; i < json.length; i++) {
+                    let params = { Bucket: 'bucket-jin-test', Key: json[i].m4a };
+                    let params_i = { Bucket: 'bucket-jin-test', Key: json[i].image };
+                    s3_client().getSignedUrl('getObject', params_i, function (err, url_i) {
+                        //console.log(json[i].image + ':::::' + url)
+                        s3_client().getSignedUrl('getObject', params, function (err, url) {
+                            let title = `<a>ARTIST:${json[i].artist},</a><a id="title${i}">${json[i].title}</a>`;
+                            document.getElementById('musiclist').insertAdjacentHTML('beforeend', title);
+                            let imgplayer = `<a href="javascript:void(0)" class="imgholder" id="imgholder"><img src="${url_i}" height="250" width="250" alt=""></img><span id="playbtn" class="playbtn">▶️</span><audio id="m4a${i}"><source src="${url}" type="audio/x-m4a"></audio></a>`
+                            document.getElementById('musiclist').insertAdjacentHTML('beforeend', imgplayer);
+                        });
+                    });
+                }
+            });
+
+        $(function () {
+            var file = null; // 選択されるファイル
+            var blob = null; // 画像(BLOBデータ)
+            const THUMBNAIL_WIDTH = 100; // 画像リサイズ後の横の長さの最大値
+            const THUMBNAIL_HEIGHT = 100; // 画像リサイズ後の縦の長さの最大値
+
+            // ファイルが選択されたら
+            $('input[type=file]').change(function () {
+
+                // ファイルを取得
+                file = $(this).prop('files')[0];
+                // 選択されたファイルが画像かどうか判定
+                if (file.type != 'image/jpeg' && file.type != 'image/png') {
+                    // 画像でない場合は終了
+                    file = null;
+                    blob = null;
+                    return;
+                }
+
+                // 画像をリサイズする
+                var image = new Image();
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    image.onload = function () {
+                        var width, height;
+                        if (image.width > image.height) {
+                            // 横長の画像は横のサイズを指定値にあわせる
+                            var ratio = image.height / image.width;
+                            width = THUMBNAIL_WIDTH;
+                            //height = THUMBNAIL_WIDTH * ratio;
+                            height = THUMBNAIL_HEIGHT;
+                        } else {
+                            // 縦長の画像は縦のサイズを指定値にあわせる
+                            var ratio = image.width / image.height;
+                            width = THUMBNAIL_WIDTH;
+                            //width = THUMBNAIL_HEIGHT * ratio;
+                            height = THUMBNAIL_HEIGHT;
+                        }
+                        // サムネ描画用canvasのサイズを上で算出した値に変更
+                        var canvas = $('#canvas')
+                            .attr('width', width)
+                            .attr('height', height);
+                        var ctx = canvas[0].getContext('2d');
+                        // canvasに既に描画されている画像をクリア
+                        ctx.clearRect(0, 0, width, height);
+                        // canvasにサムネイルを描画
+                        ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);
+                        const canvashtml = document.getElementById("canvas");
+                        canvashtml.style.display = "";
+
+
+                        // canvasからbase64画像データを取得
+                        var base64 = canvas.get(0).toDataURL('image/jpeg');
+                        // base64からBlobデータを作成
+                        var barr, bin, i, len;
+                        bin = atob(base64.split('base64,')[1]);
+                        len = bin.length;
+                        barr = new Uint8Array(len);
+                        i = 0;
+                        while (i < len) {
+                            barr[i] = bin.charCodeAt(i);
+                            i++;
+                        }
+                        blob = new Blob([barr], { type: 'image/jpeg' });
+                        console.log(blob);
+                    }
+                    image.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+
+            //$('.imgholder').click(function () {
+            $(document).on('click', '.imgholder', function(){
+                $(this).find('span').text('||');
+                var m4aid = $(this).find('audio').attr('id');
+                console.log($(this).find('audio').attr('id'))
+                var audio = document.getElementById(`${m4aid}`);
+                if (!audio.paused) {
+                    $(this).find('span').text('▶️');
+                    audio.pause();
+                    audio.currentTime = 0;
+                } else {
+                    $(this).find('span').text('||');
+                    audio.play();
+                }
+                $('.imgholder').not(this).click(function(){
+                        $('#'+ m4aid).prev('span').text('▶️');
+                        audio.pause();
+                        audio.currentTime = 0;
+                })
+            })
+        });
+
+
+
+        var s3_client = function () {
+            AWS.config.region = "ap-northeast-1";
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+            AWS.config.credentials.get(function (err) {
+                if (!err) {
+                }
+            });
+            return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+        };
+
+
+        function check() {
+            if (window.confirm('登録します')) { // 確認ダイアログを表示
+                return true; // 「OK」時は送信を実行
+            }
+            else { // 「キャンセル」時の処理
+                window.alert('キャンセルされました'); // 警告ダイアログを表示
+                return false; // 送信を中止
+            }
+        }
+
+
+    </script>
+
+
+    <%- include('partials/footer') %>

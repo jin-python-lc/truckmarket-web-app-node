@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+    <meta charset="utf-8">
+    <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="truck market" />
+    <meta name="author" content="Taito Jin" />
+    <title>truck market</title>
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="./stylesheets/style.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Open+Sans&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/531f5b0223.js" crossorigin="anonymous"></script>
+</head>
+
+<header>
+
+    <!-- Navigation-->
+    <nav class="navbar bg-nav static-top">
+        <div class="container">
+            <a class="navbar-brands" href="#">Truck Market</a>
+            
+            <form class="searchbox" id="form2" action="自分のサイトURL" method="get">
+                <input class="sb" id="sbox2" name="s" type="text" placeholder="Search"/>
+                <button class="sbt" type="submit" id="sbtn2"><i class="fas fa-search"></i></button>
+            </form>
+
+	        <div class="container-right">  
+                <a class="nav-item" href="#">Submit</a> 
+                <a class="nav-item" href="#">MyPage</a>
+                <a class="nav-item" href="#">Login</a>
+            </div>
+        </div>
+    </nav>
+
+</header>
+
+<body>
+    <input type="file" name="upload" id="upload-file">
+    <a href="javascript:void(0)" id="apply-upload">アップロード</a>
+
+    <button class="btns" id="play-btn">play</button>
+</body>
+
+
+
+</html>
+
+<script>
+
+    var URI = "";
+
+    $(function () {
+        var s3_client = function () {
+            AWS.config.region = "ap-northeast-1";
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: "ap-northeast-1:2053a1eb-a4ad-442e-a748-a7e00cb00655" });
+            AWS.config.credentials.get(function (err) {
+                if (!err) {
+                    //console.log("Cognito Identify Id: " + AWS.config.credentials.identityId);
+                }
+            });
+            return new AWS.S3({ params: { Bucket: "bucket-jin-test" } });
+        };
+
+        var username = 'jin'
+
+        $("#apply-upload").click(function () {
+            var file = $("#upload-file").prop("files")[0];
+            var timestamp = new Date().getTime();
+            var filename = (username + '_' + file.name)
+            //console.log(filename)
+            var dotindex = (filename).lastIndexOf('.');
+            var filetype = filename.slice(dotindex + 1);
+            //console.log(filetype)
+            /*  //　アップロード
+             if (filetype == 'm4a') {
+                 s3_client().putObject({Key: filename, ContentType: file.type, Body: file, ACL: "public-read"},
+                 function(err, data){
+                  // if failed, alert
+                     if(data !== null){
+                     alert("アップロード成功!");
+                     } else {
+                     alert("アップロード失敗.");
+                 }
+             })
+             }　else {
+                 alert('AAC(.m4a)形式でアップロードしてください。')
+             }; 
+             //ゲット
+             s3_client().getObject({Key: filename},
+                 function(err, data){
+                  // if failed, alert
+                     if(data !== null){
+                     //console.log(data);
+                     } else {
+                     //console.log(err);
+                 }
+             }) */
+            // 期限付きURL取得、再生押したら再生
+            var params = { Bucket: 'bucket-jin-test', Key: `${filename}` };
+            s3_client().getSignedUrl('getObject', params, function (err, url) {
+                //console.log("The URL is", url);
+                //audio file
+                var URI = url;
+                //play button
+                const play_btn = document.querySelector('#play-btn');
+                //play event
+                play_btn.addEventListener('click', play);
+                function play() {
+                    var sound = new Audio(url);
+                    sound.play();
+                }
+            });
+        });
+    });
+
+
+</script>

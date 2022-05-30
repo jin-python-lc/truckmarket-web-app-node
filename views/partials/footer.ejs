@@ -1,0 +1,78 @@
+
+<footer>
+    <div>
+        <p><a href="javascript:void(0);" id="footerplay" class="fas fa-play" style="color: #FFFFFF; margin-right: 2vw; font-size: 1.25rem; text-decoration: none;"></a><time class="playback_position" id="playback_position">0:00</time><input class="progress-bar" type="range" id="progress" value="0" min="0" step="1"><time class="end_position" id="end_position">0:00</time></p>
+    </div>
+</footer>
+
+
+
+<style>
+footer {
+    position: fixed; /* フッターを固定する */
+    bottom: 0; /* 上部から配置の基準位置を決める */
+    left: 0; /* 左から配置の基準位置を決める */
+    width: 100%; /* フッターの横幅を指定する */
+    height: 30px; /* フッターの高さを指定する */
+    padding:10px; /* フッター内側の余白を指定する(上下左右) */
+    background-color: rgb(43, 43, 46) !important; /* フッターの背景色を指定する */
+    color: #c7c7c7; /* フッターのフォントの色を指定する */
+    z-index: 10;
+}
+
+footer>div>p {
+    margin-top: 5px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+footer>div {
+    position:relative;
+    height: 100%;
+    width: 100%;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 30%;
+}
+
+.playback_position {
+    margin-right: 1vw;
+}
+
+.end_position {
+    margin-left: 1vw;
+}
+
+input[type=range] {
+    -webkit-appearance:none;
+    background:#c7c7c7;
+    height:2px;
+    width:30%;
+    border-radius:8px;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    background:#c7c7c7;
+    height:10px;
+    width:10px;
+    border-radius:50%;
+  }
+  input[type=range]::-ms-tooltip{
+    display:none;
+  }
+  input[type=range]::-moz-range-track{
+    height:0;
+  }
+  input[type=range]::-moz-range-thumb{
+    background:#c7c7c7;
+    height:20px;
+    width:30%;
+    border:none;
+    border-radius:50%;
+  }
+
+</style>

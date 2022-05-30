@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+
+    <body>
+        <p style="text-align: center; color: black;"><%= info %></p>
+        <h4 style="margin-top: 2%;">creatorユーザー登録</h4>
+        <!-- <form id="contact-form" method="post" class="fetchForm"> -->
+        <form name="form1" method="POST" class="fetchForm" action="/creatorregister">
+
+            <input type="text" id="name" name="name" placeholder="ID" class="form-control" style="margin-bottom: 0.5%;"
+                required />
+
+            <input type="text" id="email" name="email" placeholder="メールアドレス" class="form-control"
+                style="margin-bottom: 0.5%;" required />
+
+            <input type="password" id="password" name="password" placeholder="パスワード" class="form-control"
+                style="margin-bottom: 0.5%;" required />
+            <input value="登録" type="submit" class="btn btn-lg "
+                style="background-color: rgb(255, 123, 0); margin-top: 0.5%;">
+            <!--送信</button></div>-->
+        </form>
+        
+
+    </body>
+
+
+<%- include('partials/footer') %>
